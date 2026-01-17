@@ -252,6 +252,93 @@
       .summit-desktop { display: none; }
       .summit-mobile { display: grid; gap: 12px; }
     }
+    /* --- Easter egg: Set Generator --- */
+.easter-egg {
+  display: none;
+  margin-top: 14px;
+}
+
+.easter-egg.on { display: block; }
+
+.set-panel {
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,0.22);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.set-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.set-controls label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.set-controls select {
+  width: 100%;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  outline: none;
+}
+
+.set-output {
+  margin-top: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.18);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.set-output h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.set-lines {
+  margin: 0;
+  padding-left: 18px;
+  color: rgba(255,255,255,0.9);
+}
+
+.set-lines li {
+  margin: 6px 0;
+}
+
+.set-notes {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.set-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.92);
+  padding: 10px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.set-toast.on { opacity: 1; }
+@media (max-width: 640px){
+  .set-controls { grid-template-columns: 1fr 1fr; }
+}
   </style>
 </head>
 
@@ -597,10 +684,334 @@
       </section>
 
     </div>
+    <!-- Easter Egg: Swim Set Generator (hidden until unlocked) -->
+<section class="card easter-egg" id="setEgg" aria-label="Swim set generator">
+  <div class="card-head">
+    <div>
+      <h2>Set Generator</h2>
+      <div class="card-meta">Because you’re not just checking schedules, you’re training 😄</div>
+    </div>
+    <div class="pill">Easter Egg</div>
+  </div>
+
+  <div class="card-body">
+    <div class="set-panel">
+      <div class="set-controls">
+        <div>
+          <label for="setDist">Distance</label>
+          <select id="setDist">
+            <option value="1000">1000m</option>
+            <option value="2000">2000m</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="setFocus">Focus</label>
+          <select id="setFocus">
+            <option value="balanced">Balanced</option>
+            <option value="endurance">Endurance</option>
+            <option value="speed">Speed</option>
+            <option value="technique">Technique</option>
+            <option value="kickpull">Kick / Pull</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="setIntensity">Vibe</label>
+          <select id="setIntensity">
+            <option value="easy">Easy</option>
+            <option value="moderate" selected>Moderate</option>
+            <option value="spicy">Spicy</option>
+          </select>
+        </div>
+
+        <a class="btn primary" href="#" id="genSetBtn">Generate</a>
+      </div>
+
+      <div class="set-output" id="setOutput" style="display:none;">
+        <h3 id="setTitle"></h3>
+        <ol class="set-lines" id="setLines"></ol>
+        <div class="set-notes" id="setNotes"></div>
+
+        <div class="actions">
+          <a class="btn" href="#" id="copySetBtn">Copy set</a>
+          <a class="btn" href="#" id="regenSetBtn">Regenerate</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="set-toast" id="setToast">Set copied ✅</div>
   </main>
 
   <footer>
     Built for quick checking. If a schedule looks blank, open the source link directly.
   </footer>
+  <script>
+(function(){
+  // --- Easter egg unlock: type "swim" anywhere ---
+  const unlockWord = "swim";
+  let buffer = "";
+
+  const egg = document.getElementById("setEgg");
+  const toast = document.getElementById("setToast");
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("on");
+    setTimeout(() => toast.classList.remove("on"), 1200);
+  }
+
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const k = (e.key || "").toLowerCase();
+    if (k.length !== 1 || !/[a-z]/.test(k)) return;
+
+    buffer = (buffer + k).slice(-unlockWord.length);
+    if (buffer === unlockWord) {
+      egg.classList.add("on");
+      showToast("Set Generator unlocked 🏊");
+      buffer = "";
+      // scroll into view gently
+      egg.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  });
+
+  // --- Set generation helpers ---
+  function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // Build blocks that sum EXACTLY to distance
+  function buildSet(distance, focus, intensity){
+    // Distances we allow in chunks
+    const chunks = [25,50,75,100,125,150,200,250,300,400];
+    const laneSafe = [25,50,75,100,125,150,200]; // used for more "normal" sections
+
+    // Intensity affects instructions & rest vibe (we don't time rest, just coaching cues)
+    const cues = {
+      easy: {
+        effort: "easy aerobic, focus on smoothness",
+        rest: "short rest, keep moving",
+        note: "Keep it conversational. You should finish feeling better than you started."
+      },
+      moderate: {
+        effort: "steady, controlled effort",
+        rest: "take 10–20s when you need it",
+        note: "Aim for consistent pacing. Smooth turns, long strokes."
+      },
+      spicy: {
+        effort: "strong effort on the fast parts",
+        rest: "take 15–30s between hard repeats",
+        note: "Hold form under pressure. If technique slips, back off 5%."
+      }
+    };
+
+    // Template parts (these are options; we’ll pick ones that fit the distance)
+    const warmups = [
+      { lines: ["200 easy swim (mix strokes if you want)"], dist: 200 },
+      { lines: ["100 easy swim", "100 pull (buoy)"], dist: 200 },
+      { lines: ["4 x 50 (25 drill / 25 swim)"], dist: 200 },
+      { lines: ["300 easy swim, build the last 50"], dist: 300 },
+      { lines: ["200 easy", "4 x 25 drill (choice)"], dist: 300 }
+    ];
+
+    const cooldowns = [
+      { lines: ["100 easy"], dist: 100 },
+      { lines: ["200 easy"], dist: 200 },
+      { lines: ["4 x 25 easy, long strokes"], dist: 100 }
+    ];
+
+    // Main-set motifs by focus
+    const motifs = {
+      balanced: [
+        () => ({ lines: ["4 x 100 steady", "4 x 50 (smooth but purposeful)"], dist: 600 }),
+        () => ({ lines: ["3 x 200 steady", "4 x 50 choice"], dist: 800 }),
+        () => ({ lines: ["8 x 50 (odd easy / even steady)"], dist: 400 }),
+      ],
+      endurance: [
+        () => ({ lines: ["1 x 400 steady", "4 x 100 steady"], dist: 800 }),
+        () => ({ lines: ["2 x 300 steady", "4 x 50 steady"], dist: 800 }),
+        () => ({ lines: ["1 x 500 steady (negative split if you can)"], dist: 500 }),
+      ],
+      speed: [
+        () => ({ lines: ["8 x 25 fast (easy back if needed)"], dist: 200 }),
+        () => ({ lines: ["12 x 50 (25 fast / 25 easy)"], dist: 600 }),
+        () => ({ lines: ["6 x 50 fast (good form)", "4 x 25 fast"], dist: 400 }),
+      ],
+      technique: [
+        () => ({ lines: ["8 x 25 drill (choice)", "4 x 50 (25 drill / 25 swim)"], dist: 400 }),
+        () => ({ lines: ["6 x 50 drill/swim mix", "4 x 25 drill"], dist: 400 }),
+        () => ({ lines: ["4 x 75 (25 drill / 50 swim)"], dist: 300 }),
+      ],
+      kickpull: [
+        () => ({ lines: ["4 x 50 kick", "4 x 50 pull"], dist: 400 }),
+        () => ({ lines: ["6 x 50 pull", "4 x 25 kick"], dist: 400 }),
+        () => ({ lines: ["8 x 25 kick (board or streamline)"], dist: 200 }),
+      ]
+    };
+
+    // Pick warmup & cooldown that fit, then fill the rest with motifs + filler
+    const wu = rand(warmups);
+    const cd = rand(cooldowns);
+
+    // Ensure we leave enough room for a sensible main set
+    let remaining = distance - wu.dist - cd.dist;
+    if (remaining < 300) {
+      // swap to smaller warmup/cooldown if needed
+      const wu2 = { lines: ["200 easy swim"], dist: 200 };
+      const cd2 = { lines: ["100 easy"], dist: 100 };
+      remaining = distance - wu2.dist - cd2.dist;
+
+      return assemble(distance, focus, intensity, wu2, cd2, remaining);
+    }
+    return assemble(distance, focus, intensity, wu, cd, remaining);
+
+    function assemble(distance, focus, intensity, wu, cd, remaining){
+      const mainLines = [];
+      let mainDist = 0;
+
+      // Try 1–3 motifs
+      const motifFns = shuffle(motifs[focus].slice());
+      for (const fn of motifFns) {
+        const m = fn();
+        if (mainDist + m.dist <= remaining - 100) { // leave room for filler
+          mainLines.push(...m.lines);
+          mainDist += m.dist;
+        }
+      }
+
+      // Fill remainder with sensible filler
+      let filler = remaining - mainDist;
+      const fillerLines = [];
+
+      // Filler strategy depends on focus
+      const fillerPool = (focus === "speed")
+        ? [25,50,100]
+        : (focus === "endurance")
+          ? [100,200,300]
+          : [50,100,150,200];
+
+      while (filler > 0) {
+        // pick a chunk <= filler
+        const opts = fillerPool.filter(x => x <= filler);
+        let pick = opts.length ? rand(opts) : Math.min(filler, 50);
+
+        // ensure we don't get stuck with odd tiny remainder
+        if (filler - pick === 25 && !fillerPool.includes(25) && fillerPool.includes(50) && filler >= 75) {
+          pick = 75; // avoids dead-end
+        }
+
+        // convert pick to a line (repeat format when possible)
+        if (pick === 25) fillerLines.push("1 x 25 easy");
+        else if (pick === 50) fillerLines.push("1 x 50 easy/steady");
+        else if (pick === 75) fillerLines.push("1 x 75 (25 drill / 50 swim)");
+        else if (pick === 100) fillerLines.push("1 x 100 steady");
+        else if (pick === 150) fillerLines.push("1 x 150 steady");
+        else if (pick === 200) fillerLines.push("1 x 200 steady");
+        else if (pick === 300) fillerLines.push("1 x 300 steady");
+        else fillerLines.push(`1 x ${pick} steady`);
+
+        filler -= pick;
+        mainDist += pick;
+      }
+
+      const total = wu.dist + mainDist + cd.dist;
+
+      const title = `${distance}m • ${focus.charAt(0).toUpperCase()+focus.slice(1)} • ${intensity.charAt(0).toUpperCase()+intensity.slice(1)}`;
+      const notes = `Coach notes: ${cues[intensity].effort}. ${cues[intensity].rest}. ${cues[intensity].note}`;
+
+      const lines = [
+        `Warm-up (${wu.dist}m):`,
+        ...wu.lines.map(x => "• " + x),
+        `Main set (${mainDist}m):`,
+        ...mainLines.map(x => "• " + x),
+        ...fillerLines.map(x => "• " + x),
+        `Cool-down (${cd.dist}m):`,
+        ...cd.lines.map(x => "• " + x),
+        `Total: ${total}m`
+      ];
+
+      return { title, lines, notes, total };
+    }
+  }
+
+  // --- Wire up UI ---
+  const distEl = document.getElementById("setDist");
+  const focusEl = document.getElementById("setFocus");
+  const intensityEl = document.getElementById("setIntensity");
+  const genBtn = document.getElementById("genSetBtn");
+  const regenBtn = document.getElementById("regenSetBtn");
+  const copyBtn = document.getElementById("copySetBtn");
+
+  const out = document.getElementById("setOutput");
+  const titleEl = document.getElementById("setTitle");
+  const linesEl = document.getElementById("setLines");
+  const notesEl = document.getElementById("setNotes");
+
+  let lastSetText = "";
+
+  function renderSet(){
+    const distance = parseInt(distEl.value, 10);
+    const focus = focusEl.value;
+    const intensity = intensityEl.value;
+
+    const s = buildSet(distance, focus, intensity);
+
+    titleEl.textContent = s.title;
+    linesEl.innerHTML = "";
+
+    // turn our lines (with headers) into nice list items
+    s.lines.forEach(line => {
+      const li = document.createElement("li");
+      li.textContent = line.replace(/^•\s/, "");
+      // bold headers
+      if (/(Warm-up|Main set|Cool-down|Total)/.test(line)) {
+        li.style.fontWeight = "800";
+      }
+      linesEl.appendChild(li);
+    });
+
+    notesEl.textContent = s.notes;
+    out.style.display = "block";
+
+    // prepare copy text
+    lastSetText = [
+      titleEl.textContent,
+      "",
+      ...s.lines.map(l => l.replace(/^•\s/, "")),
+      "",
+      notesEl.textContent
+    ].join("\n");
+  }
+
+  function prevent(e){ e.preventDefault(); }
+
+  if (genBtn) genBtn.addEventListener("click", (e) => { prevent(e); renderSet(); });
+  if (regenBtn) regenBtn.addEventListener("click", (e) => { prevent(e); renderSet(); });
+  if (copyBtn) copyBtn.addEventListener("click", async (e) => {
+    prevent(e);
+    try{
+      await navigator.clipboard.writeText(lastSetText || "");
+      showToast("Set copied ✅");
+    } catch(err){
+      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = lastSetText || "";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      showToast("Copied (fallback) ✅");
+    }
+  });
+})();
+</script>
 </body>
 </html>
