@@ -9,7 +9,6 @@
     :root{
       --bg: #0b1220;
       --panel: rgba(255,255,255,0.06);
-      --panel-2: rgba(255,255,255,0.10);
       --text: rgba(255,255,255,0.92);
       --muted: rgba(255,255,255,0.70);
       --line: rgba(255,255,255,0.12);
@@ -34,14 +33,13 @@
       line-height: 1.45;
     }
 
-    a { color: inherit; }
-
     header{
       padding: 28px 16px 18px;
       border-bottom: 1px solid var(--line);
       backdrop-filter: blur(10px);
       background: linear-gradient(to bottom, rgba(0,0,0,0.22), rgba(0,0,0,0));
     }
+
     .container{
       max-width: var(--max);
       margin: 0 auto;
@@ -121,7 +119,7 @@
       aspect-ratio: 16 / 10;
       min-height: 320px;
     }
-    iframe, object{
+    iframe{
       width: 100%;
       height: 100%;
       border: 0;
@@ -134,6 +132,7 @@
       flex-wrap: wrap;
       gap: 10px;
       margin-top: 12px;
+      align-items: center;
     }
     .btn{
       display: inline-flex;
@@ -161,9 +160,6 @@
       border-color: rgba(255,255,255,0.18);
       color: #08101f;
     }
-    .btn.primary:hover{
-      filter: brightness(1.03);
-    }
 
     /* Table styling + mobile friendliness */
     .table-wrap{
@@ -173,11 +169,10 @@
       border: 1px solid var(--line);
       background: rgba(0,0,0,0.18);
     }
-
     table{
       width: 100%;
       border-collapse: collapse;
-      min-width: 820px; /* forces scroll on small screens */
+      min-width: 820px;
     }
     th, td{
       padding: 12px 10px;
@@ -197,13 +192,6 @@
     tr:last-child td { border-bottom: 0; }
     td:last-child, th:last-child { border-right: 0; }
 
-    .section-title{
-      margin: 0 0 10px;
-      font-size: 1.05rem;
-      color: var(--text);
-      letter-spacing: -0.01em;
-    }
-
     footer{
       padding: 18px 16px 30px;
       color: var(--muted);
@@ -217,66 +205,53 @@
       .pill{ display:none; }
     }
 
-    /* Hide PDF embed on smaller screens and show the button instead */
+    /* Shared day-card styles (used by MUN + Summit) */
+    .day-card {
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.18);
+      border-radius: 14px;
+      padding: 12px 12px 10px;
+    }
+
+    .day-name {
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin: 0 0 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .slot {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .slot:last-child { border-bottom: 0; padding-bottom: 4px; }
+    .activity { font-weight: 700; }
+    .time {
+      color: rgba(255,255,255,0.75);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* --- MUN schedule: table on desktop, day-cards on mobile --- */
+    .mun-desktop { display: block; }
+    .mun-mobile { display: none; }
     @media (max-width: 820px){
-      .pdf-embed { display: none; }
-      .pdf-fallback { display: block; }
+      .mun-desktop { display: none; }
+      .mun-mobile { display: grid; gap: 12px; }
     }
-    @media (min-width: 821px){
-      .pdf-embed { display: block; }
-      .pdf-fallback { display: none; }
+
+    /* --- Summit schedule: table on desktop, day-cards on mobile --- */
+    .summit-desktop { display: block; }
+    .summit-mobile { display: none; }
+    @media (max-width: 820px){
+      .summit-desktop { display: none; }
+      .summit-mobile { display: grid; gap: 12px; }
     }
-  /* --- MUN schedule: table on desktop, day-cards on mobile --- */
-.mun-desktop { display: block; }
-.mun-mobile { display: none; }
-
-.mun-mobile .day-card {
-  border: 1px solid var(--line);
-  background: rgba(0,0,0,0.18);
-  border-radius: 14px;
-  padding: 12px 12px 10px;
-}
-
-.mun-mobile .day-name {
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  margin: 0 0 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255,255,255,0.10);
-}
-
-.mun-mobile .slot {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.mun-mobile .slot:last-child { border-bottom: 0; padding-bottom: 4px; }
-
-.mun-mobile .activity {
-  font-weight: 700;
-}
-
-.mun-mobile .time {
-  color: rgba(255,255,255,0.75);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.mun-mobile .empty {
-  color: rgba(255,255,255,0.55);
-  font-style: italic;
-  padding: 8px 0 2px;
-}
-
-/* Switch to mobile layout */
-@media (max-width: 820px){
-  .mun-desktop { display: none; }
-  .mun-mobile { display: grid; gap: 12px; }
-}
   </style>
 </head>
 
@@ -339,183 +314,289 @@
         </div>
       </section>
 
-<!-- MUN Pool Schedule -->
-<section class="card">
-  <div class="card-head">
-    <div>
-      <h2>MUN Pool Schedule</h2>
-      <div class="card-meta">Table on desktop, day-by-day on mobile</div>
+      <!-- MUN Pool Schedule -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>MUN Pool Schedule</h2>
+            <div class="card-meta">Table on desktop, day-by-day on mobile</div>
+          </div>
+          <div class="pill">Static</div>
+        </div>
+
+        <div class="card-body">
+          <div class="mun-desktop">
+            <div class="table-wrap" role="region" aria-label="MUN Pool Schedule table">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Monday</th>
+                    <th scope="col">Tuesday</th>
+                    <th scope="col">Wednesday</th>
+                    <th scope="col">Thursday</th>
+                    <th scope="col">Friday</th>
+                    <th scope="col">Saturday</th>
+                    <th scope="col">Sunday</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Lane Swim</strong><br>6:15 AM – 7:15 AM</td>
+                    <td><strong>Lane Swim</strong><br>7:30 AM – 10:30 AM</td>
+                    <td><strong>Lane Swim</strong><br>6:15 AM – 7:15 AM</td>
+                    <td><strong>Lane Swim</strong><br>6:15 AM – 10:30 AM</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Lane Swim</strong><br>11:00 AM – 2:00 PM</td>
+                    <td><strong>Deep Water Fitness</strong><br>10:45 AM – 11:30 AM</td>
+                    <td><strong>Lane Swim</strong><br>11:00 AM – 2:00 PM</td>
+                    <td><strong>Deep Water Fitness</strong><br>10:45 AM – 11:30 AM</td>
+                    <td><strong>Lane Swim</strong><br>11:00 AM – 2:00 PM</td>
+                    <td><strong>Lane Swim</strong><br>12:15 PM – 2:15 PM</td>
+                    <td>&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td>
+                    <td><strong>Lane Swim</strong><br>11:45 AM – 1:30 PM</td>
+                    <td>&nbsp;</td>
+                    <td><strong>Lane Swim</strong><br>11:45 AM – 1:30 PM</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Lane Swim</strong><br>5:00 PM – 6:30 PM</td>
+                    <td><strong>Lane Swim</strong><br>8:30 PM – 10:00 PM</td>
+                    <td><strong>Lane Swim</strong><br>5:00 PM – 6:30 PM</td>
+                    <td><strong>Lane Swim</strong><br>8:30 PM – 10:00 PM</td>
+                    <td><strong>Lane Swim</strong><br>5:00 PM – 6:30 PM</td>
+                    <td>&nbsp;</td>
+                    <td><strong>Lane Swim</strong><br>5:00 PM – 7:00 PM</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="actions">
+              <span class="card-meta">Tip: on smaller screens, the day-by-day view is easier.</span>
+            </div>
+          </div>
+
+          <div class="mun-mobile" aria-label="MUN Pool Schedule mobile view">
+            <div class="day-card">
+              <div class="day-name">Monday</div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">6:15 AM – 7:15 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:00 AM – 2:00 PM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">5:00 PM – 6:30 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Tuesday</div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">7:30 AM – 10:30 AM</div></div>
+              <div class="slot"><div class="activity">Deep Water Fitness</div><div class="time">10:45 AM – 11:30 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:45 AM – 1:30 PM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">8:30 PM – 10:00 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Wednesday</div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">6:15 AM – 7:15 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:00 AM – 2:00 PM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">5:00 PM – 6:30 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Thursday</div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">6:15 AM – 10:30 AM</div></div>
+              <div class="slot"><div class="activity">Deep Water Fitness</div><div class="time">10:45 AM – 11:30 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:45 AM – 1:30 PM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">8:30 PM – 10:00 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Friday</div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:00 AM – 2:00 PM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">5:00 PM – 6:30 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Saturday</div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">12:15 PM – 2:15 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Sunday</div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">5:00 PM – 7:00 PM</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Summit Centre (Mount Pearl) Main Pool Schedule -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>Summit Centre Swim Schedule (Mount Pearl)</h2>
+            <div class="card-meta">Main Pool • Jan 4 – Apr 4, 2026</div>
+          </div>
+          <div class="pill">Static</div>
+        </div>
+
+        <div class="card-body">
+          <div class="actions">
+            <a
+              class="btn primary"
+              href="https://www.mountpearl.ca/wp-content/uploads/2025/12/Rec-Pool-Schedule-Winter-Jan-4-to-Apr-4-2026.pdf"
+              target="_blank"
+              rel="noopener"
+            >Open official PDF</a>
+            <span class="card-meta">Use this if the city updates the schedule.</span>
+          </div>
+
+          <!-- Desktop table -->
+          <div class="summit-desktop">
+            <div class="table-wrap" role="region" aria-label="Summit Centre Main Pool Schedule table">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Sunday</th>
+                    <th scope="col">Monday</th>
+                    <th scope="col">Tuesday</th>
+                    <th scope="col">Wednesday</th>
+                    <th scope="col">Thursday</th>
+                    <th scope="col">Friday</th>
+                    <th scope="col">Saturday</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Lane Swim</strong><br>7:00 AM – 8:20 AM</td>
+                    <td><strong>Lane Swim (4 lanes)</strong><br>6:00 AM – 7:15 AM</td>
+                    <td><strong>Lane Swim</strong><br>7:15 AM – 9:15 AM</td>
+                    <td><strong>Lane Swim (4 lanes)</strong><br>6:00 AM – 7:15 AM</td>
+                    <td><strong>Lane Swim</strong><br>7:15 AM – 9:15 AM</td>
+                    <td><strong>Lane Swim (4 lanes)</strong><br>6:00 AM – 7:15 AM</td>
+                    <td><strong>Lane Swim (5 lanes)</strong><br>9:30 AM – 10:00 AM</td>
+                  </tr>
+
+                  <tr>
+                    <td>&nbsp;</td>
+                    <td><strong>Lane Swim</strong><br>7:15 AM – 9:15 AM</td>
+                    <td>&nbsp;</td>
+                    <td><strong>Lane Swim</strong><br>7:15 AM – 9:15 AM</td>
+                    <td>&nbsp;</td>
+                    <td><strong>Lane Swim</strong><br>7:15 AM – 9:15 AM</td>
+                    <td><strong>Lane Swim</strong><br>10:00 AM – 10:30 AM</td>
+                  </tr>
+
+                  <tr>
+                    <td><strong>Family Swim</strong><br>10:45 AM – 11:30 AM</td>
+                    <td><strong>Lane Swim</strong><br>11:30 AM – 2:30 PM</td>
+                    <td><strong>Lane Swim</strong><br>11:30 AM – 2:30 PM</td>
+                    <td><strong>Lane Swim</strong><br>11:30 AM – 2:30 PM</td>
+                    <td><strong>Lane Swim</strong><br>11:30 AM – 2:30 PM</td>
+                    <td><strong>Lane Swim</strong><br>11:30 AM – 1:30 PM</td>
+                    <td><strong>Family Swim</strong><br>10:45 AM – 11:30 AM</td>
+                  </tr>
+
+                  <tr>
+                    <td><strong>Public Swim</strong><br>3:30 PM – 4:15 PM</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td><strong>Public Swim</strong><br>3:30 PM – 4:15 PM</td>
+                  </tr>
+
+                  <tr>
+                    <td>&nbsp;</td>
+                    <td><strong>Lane Swim</strong><br>6:00 PM – 6:50 PM</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td><strong>Family Swim</strong><br>7:00 PM – 7:50 PM</td>
+                    <td><strong>Sensory Swim</strong><br>4:45 PM – 5:30 PM</td>
+                  </tr>
+
+                  <tr>
+                    <td><strong>Lane Swim</strong><br>9:00 PM – 10:00 PM</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td><strong>Lane Swim</strong><br>9:00 PM – 10:00 PM</td>
+                    <td>&nbsp;</td>
+                    <td><strong>Public Swim</strong><br>8:00 PM – 8:50 PM</td>
+                    <td>&nbsp;</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Mobile day cards -->
+          <div class="summit-mobile" aria-label="Summit Centre Main Pool Schedule mobile view">
+            <div class="day-card">
+              <div class="day-name">Sunday</div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">7:00 AM – 8:20 AM</div></div>
+              <div class="slot"><div class="activity">Family Swim</div><div class="time">10:45 AM – 11:30 AM</div></div>
+              <div class="slot"><div class="activity">Public Swim</div><div class="time">3:30 PM – 4:15 PM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">9:00 PM – 10:00 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Monday</div>
+              <div class="slot"><div class="activity">Lane Swim (4 lanes)</div><div class="time">6:00 AM – 7:15 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">7:15 AM – 9:15 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:30 AM – 2:30 PM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">6:00 PM – 6:50 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Tuesday</div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">7:15 AM – 9:15 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:30 AM – 2:30 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Wednesday</div>
+              <div class="slot"><div class="activity">Lane Swim (4 lanes)</div><div class="time">6:00 AM – 7:15 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">7:15 AM – 9:15 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:30 AM – 2:30 PM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">9:00 PM – 10:00 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Thursday</div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">7:15 AM – 9:15 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:30 AM – 2:30 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Friday</div>
+              <div class="slot"><div class="activity">Lane Swim (4 lanes)</div><div class="time">6:00 AM – 7:15 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">7:15 AM – 9:15 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:30 AM – 1:30 PM</div></div>
+              <div class="slot"><div class="activity">Family Swim</div><div class="time">7:00 PM – 7:50 PM</div></div>
+              <div class="slot"><div class="activity">Public Swim</div><div class="time">8:00 PM – 8:50 PM</div></div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-name">Saturday</div>
+              <div class="slot"><div class="activity">Lane Swim (5 lanes)</div><div class="time">9:30 AM – 10:00 AM</div></div>
+              <div class="slot"><div class="activity">Lane Swim</div><div class="time">10:00 AM – 10:30 AM</div></div>
+              <div class="slot"><div class="activity">Family Swim</div><div class="time">10:45 AM – 11:30 AM</div></div>
+              <div class="slot"><div class="activity">Public Swim</div><div class="time">3:30 PM – 4:15 PM</div></div>
+              <div class="slot"><div class="activity">Sensory Swim</div><div class="time">4:45 PM – 5:30 PM</div></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
     </div>
-    <div class="pill">Static</div>
-  </div>
-
-  <div class="card-body">
-    <div class="mun-desktop">
-      <div class="table-wrap" role="region" aria-label="MUN Pool Schedule table">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Monday</th>
-              <th scope="col">Tuesday</th>
-              <th scope="col">Wednesday</th>
-              <th scope="col">Thursday</th>
-              <th scope="col">Friday</th>
-              <th scope="col">Saturday</th>
-              <th scope="col">Sunday</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Lane Swim</strong><br>6:15 AM – 7:15 AM</td>
-              <td><strong>Lane Swim</strong><br>7:30 AM – 10:30 AM</td>
-              <td><strong>Lane Swim</strong><br>6:15 AM – 7:15 AM</td>
-              <td><strong>Lane Swim</strong><br>6:15 AM – 10:30 AM</td>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-            </tr>
-
-            <tr>
-              <td><strong>Lane Swim</strong><br>11:00 AM – 2:00 PM</td>
-              <td><strong>Deep Water Fitness</strong><br>10:45 AM – 11:30 AM</td>
-              <td><strong>Lane Swim</strong><br>11:00 AM – 2:00 PM</td>
-              <td><strong>Deep Water Fitness</strong><br>10:45 AM – 11:30 AM</td>
-              <td><strong>Lane Swim</strong><br>11:00 AM – 2:00 PM</td>
-              <td><strong>Lane Swim</strong><br>12:15 PM – 2:15 PM</td>
-              <td>&nbsp;</td>
-            </tr>
-
-            <tr>
-              <td>&nbsp;</td>
-              <td><strong>Lane Swim</strong><br>11:45 AM – 1:30 PM</td>
-              <td>&nbsp;</td>
-              <td><strong>Lane Swim</strong><br>11:45 AM – 1:30 PM</td>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-            </tr>
-
-            <tr>
-              <td><strong>Lane Swim</strong><br>5:00 PM – 6:30 PM</td>
-              <td><strong>Lane Swim</strong><br>8:30 PM – 10:00 PM</td>
-              <td><strong>Lane Swim</strong><br>5:00 PM – 6:30 PM</td>
-              <td><strong>Lane Swim</strong><br>8:30 PM – 10:00 PM</td>
-              <td><strong>Lane Swim</strong><br>5:00 PM – 6:30 PM</td>
-              <td>&nbsp;</td>
-              <td><strong>Lane Swim</strong><br>5:00 PM – 7:00 PM</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="actions">
-        <span class="card-meta">Tip: on smaller screens, this table scrolls sideways.</span>
-      </div>
-    </div>
-
-    <div class="mun-mobile" aria-label="MUN Pool Schedule mobile view">
-      <div class="day-card">
-        <div class="day-name">Monday</div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">6:15 AM – 7:15 AM</div></div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:00 AM – 2:00 PM</div></div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">5:00 PM – 6:30 PM</div></div>
-      </div>
-
-      <div class="day-card">
-        <div class="day-name">Tuesday</div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">7:30 AM – 10:30 AM</div></div>
-        <div class="slot"><div class="activity">Deep Water Fitness</div><div class="time">10:45 AM – 11:30 AM</div></div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:45 AM – 1:30 PM</div></div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">8:30 PM – 10:00 PM</div></div>
-      </div>
-
-      <div class="day-card">
-        <div class="day-name">Wednesday</div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">6:15 AM – 7:15 AM</div></div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:00 AM – 2:00 PM</div></div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">5:00 PM – 6:30 PM</div></div>
-      </div>
-
-      <div class="day-card">
-        <div class="day-name">Thursday</div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">6:15 AM – 10:30 AM</div></div>
-        <div class="slot"><div class="activity">Deep Water Fitness</div><div class="time">10:45 AM – 11:30 AM</div></div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:45 AM – 1:30 PM</div></div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">8:30 PM – 10:00 PM</div></div>
-      </div>
-
-      <div class="day-card">
-        <div class="day-name">Friday</div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">11:00 AM – 2:00 PM</div></div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">5:00 PM – 6:30 PM</div></div>
-      </div>
-
-      <div class="day-card">
-        <div class="day-name">Saturday</div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">12:15 PM – 2:15 PM</div></div>
-      </div>
-
-      <div class="day-card">
-        <div class="day-name">Sunday</div>
-        <div class="slot"><div class="activity">Lane Swim</div><div class="time">5:00 PM – 7:00 PM</div></div>
-      </div>
-    </div>
-
-  </div>
-</section>
-      <!-- Summit Centre (Mount Pearl) Pool Schedule -->
-<section class="card">
-  <div class="card-head">
-    <div>
-      <h2>Summit Centre Pool Schedule (Mount Pearl)</h2>
-      <div class="card-meta">Winter schedule PDF (Jan 4 to Apr 4, 2026)</div>
-    </div>
-    <div class="pill">PDF</div>
-  </div>
-
-  <div class="card-body">
-    <!-- Desktop/tablet embed -->
-    <div class="pdf-embed">
-      <div class="embed ratio" style="aspect-ratio: 16 / 11;">
-        <object
-          data="https://www.mountpearl.ca/wp-content/uploads/2025/12/Rec-Pool-Schedule-Winter-Jan-4-to-Apr-4-2026.pdf"
-          type="application/pdf"
-          aria-label="Summit Centre Pool Schedule PDF"
-        >
-          <iframe
-            src="https://www.mountpearl.ca/wp-content/uploads/2025/12/Rec-Pool-Schedule-Winter-Jan-4-to-Apr-4-2026.pdf"
-            loading="lazy"
-            title="Summit Centre Pool Schedule PDF"
-          ></iframe>
-        </object>
-      </div>
-    </div>
-
-    <!-- Mobile-friendly fallback -->
-    <div class="pdf-fallback">
-      <p class="card-meta" style="margin-top:0;">
-        On mobile, PDFs usually open better in a PDF viewer.
-      </p>
-      <div class="actions">
-        <a
-          class="btn primary"
-          href="https://www.mountpearl.ca/wp-content/uploads/2025/12/Rec-Pool-Schedule-Winter-Jan-4-to-Apr-4-2026.pdf"
-          target="_blank"
-          rel="noopener"
-        >Open Summit Centre PDF</a>
-      </div>
-    </div>
-
-    <div class="actions">
-      <a
-        class="btn"
-        href="https://www.mountpearl.ca/wp-content/uploads/2025/12/Rec-Pool-Schedule-Winter-Jan-4-to-Apr-4-2026.pdf"
-        target="_blank"
-        rel="noopener"
-      >Open in new tab</a>
-    </div>
-  </div>
-</section>
   </main>
 
   <footer>
