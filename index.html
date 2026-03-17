@@ -229,7 +229,23 @@
   background: rgba(255,255,255,0.045);
   border-color: rgba(255,255,255,0.10);
 }
+.finder-section details.collapsible {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(0,0,0,0.18);
+}
 
+.finder-section .collapsible-summary {
+  background: rgba(255,255,255,0.03);
+}
+
+.finder-section details[open] .finder-card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding-top: 10px;
+}
 /* collapsible reference sections */
 .collapsible summary{
   list-style: none;
@@ -603,10 +619,11 @@ details[open] .chevron{
     <div class="pill">Live</div>
   </div>
   <div class="card-body">
-    <div id="recommendedBlock" class="finder-section"></div>
-    <div id="openNowBlock" class="finder-section"></div>
-    <div id="nextSwimBlock" class="finder-section"></div>
-    <div id="todayPoolsBlock" class="finder-section"></div>
+<div id="recommendedBlock" class="finder-section"></div>
+<div id="openNowBlock" class="finder-section"></div>
+<div id="nextSwimBlock" class="finder-section"></div>
+<div id="todayPoolsBlock" class="finder-section"></div>
+<div id="tomorrowPoolsBlock" class="finder-section"></div>
   </div>
 </section>
     <!-- HGR Mews -->
@@ -1204,7 +1221,11 @@ const poolSchedules = [
 function getDayKey(date = new Date()) {
   return ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][date.getDay()];
 }
-
+function getTomorrow(date = new Date()) {
+  const tomorrow = new Date(date);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow;
+}
 function timeToMinutes(timeStr) {
   const [hours, minutes] = timeStr.split(":").map(Number);
   return hours * 60 + minutes;
@@ -1457,55 +1478,63 @@ function renderStatusWidgets() {
   }
 }
 
-function renderTodayByPool() {
-  const target = document.getElementById("todayPoolsBlock");
+function renderPoolBlock(targetId, heading, date, openByDefault = false) {
+  const target = document.getElementById(targetId);
   if (!target) return;
 
-  const todayPools = getTodaySchedules(poolSchedules, new Date(), true)
+  const pools = getTodaySchedules(poolSchedules, date, true)
     .sort((a, b) => b.priority - a.priority);
 
   target.innerHTML = `
-    <div class="finder-heading">Today by pool</div>
-    <div class="finder-card">
-      ${todayPools.map(pool => {
-        if (!pool.todaySlots.length) {
+    <details class="collapsible"${openByDefault ? " open" : ""}>
+      <summary class="collapsible-summary">
+        <div>
+          <div class="collapsible-label">${heading}</div>
+          <div class="collapsible-hint">${date.toLocaleDateString(undefined, { weekday: "long" })}</div>
+        </div>
+        <div class="chevron">›</div>
+      </summary>
+      <div class="finder-card" style="margin-top:10px;">
+        ${pools.map(pool => {
+          if (!pool.todaySlots.length) {
+            return `
+              <div class="pool-group">
+                <div class="pool-group-title">
+                  <span>${pool.name}</span>
+                  <span class="helper-text">No swims</span>
+                </div>
+              </div>
+            `;
+          }
+
           return `
             <div class="pool-group">
               <div class="pool-group-title">
                 <span>${pool.name}</span>
-                <span class="helper-text">No swims today</span>
+                <span class="helper-text">${pool.todaySlots.length} session${pool.todaySlots.length === 1 ? "" : "s"}</span>
               </div>
+              ${pool.todaySlots.map(slot => `
+                <div class="slot" style="padding:6px 0;">
+                  <div>
+                    <div class="activity">${slot.activity}${slot.area ? `, ${slot.area}` : ""}</div>
+                    <div class="badge-row" style="margin-top:8px;">
+                      ${slot.category === "public" ? `<span class="badge public">Public swim</span>` : ""}
+                    </div>
+                  </div>
+                  <div class="time">${formatTime(slot.start)} – ${formatTime(slot.end)}</div>
+                </div>
+              `).join("")}
             </div>
           `;
-        }
-
-        return `
-          <div class="pool-group">
-            <div class="pool-group-title">
-              <span>${pool.name}</span>
-              <span class="helper-text">${pool.todaySlots.length} session${pool.todaySlots.length === 1 ? "" : "s"}</span>
-            </div>
-            ${pool.todaySlots.map(slot => `
-              <div class="slot" style="padding:6px 0;">
-                <div>
-                  <div class="activity">${slot.activity}${slot.area ? `, ${slot.area}` : ""}</div>
-                  <div class="badge-row" style="margin-top:8px;">
-                    <span class="badge ${slotTypeClass(slot)}">${slot.category === "lane" ? "Lane swim" : "Public swim"}</span>
-                  </div>
-                </div>
-                <div class="time">${formatTime(slot.start)} – ${formatTime(slot.end)}</div>
-              </div>
-            `).join("")}
-          </div>
-        `;
-      }).join("")}
-    </div>
+        }).join("")}
+      </div>
+    </details>
   `;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   renderStatusWidgets();
-  renderTodayByPool();
+  renderTodayAndTomorrow();
 });
 </script>
 
