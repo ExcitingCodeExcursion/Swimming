@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Local Swim Schedules</title>
-<p class="subtitle">Find the best swim times around St. John’s without digging through calendars and PDFs.</p>
   <style>
     :root{
       --bg: #0b1220;
@@ -416,7 +415,6 @@ details[open] .chevron{
     white-space: normal;
   }
 }
-    }
 
     /* Shared day-card styles (used by MUN + Summit) */
     .day-card {
@@ -583,7 +581,7 @@ details[open] .chevron{
     <div class="header-row">
       <div>
         <h1 class="title">Local Swim Schedules</h1>
-        <p class="subtitle">Quick access to lane swim and pool schedules around St. John’s and nearby.</p>
+        <p class="subtitle">Find the best swim times around St. John’s without digging through calendars and PDFs.</p>
       </div>
 
       <!-- Fish toggle (Easter Egg) -->
@@ -787,6 +785,7 @@ details[open] .chevron{
       </div>
     </div>
   </div>
+  </details>
 </section>
     <!-- Summit Centre (Mount Pearl) Main Pool Schedule -->
    <section class="card secondary-card facility-card">
@@ -945,7 +944,8 @@ details[open] .chevron{
         </div>
 
       </div>
-    </section>
+  </details>
+   </section>
 
     <!-- Easter Egg: Swim Set Generator (hidden until fish toggled) -->
     <section class="card easter-egg" id="setEgg" aria-label="Swim set generator">
@@ -1013,6 +1013,7 @@ details[open] .chevron{
 <footer>
   Built for quick checking. If a schedule looks blank, open the source link directly.
 </footer>
+
 <script>
 const aquarenaSchedule = {
   id: "aquarena",
@@ -1221,10 +1222,6 @@ function formatTime(timeStr) {
   return `${hour12}:${String(m).padStart(2, "0")} ${suffix}`;
 }
 
-function formatSlot(slot) {
-  const area = slot.area ? `, ${slot.area}` : "";
-  return `${slot.activity}${area} • ${formatTime(slot.start)}–${formatTime(slot.end)}`;
-}
 function minutesUntil(startTime, date = new Date()) {
   return timeToMinutes(startTime) - nowMinutes(date);
 }
@@ -1243,39 +1240,10 @@ function humanEndsAt(endTime) {
   return `Ends at ${formatTime(endTime)}`;
 }
 
-function getRecommendation(statuses, now = new Date()) {
-  const openNow = statuses
-    .filter(s => s.current)
-    .sort((a, b) => b.priority - a.priority);
-
-  if (openNow.length) {
-    return {
-      type: "open",
-      status: openNow[0]
-    };
-  }
-
-  const nextUp = statuses
-    .filter(s => s.next)
-    .sort((a, b) => {
-      const timeDiff = timeToMinutes(a.next.start) - timeToMinutes(b.next.start);
-      if (timeDiff !== 0) return timeDiff;
-      return b.priority - a.priority;
-    });
-
-  if (nextUp.length) {
-    return {
-      type: "next",
-      status: nextUp[0]
-    };
-  }
-
-  return null;
-}
-
 function slotTypeClass(slot) {
   return slot.category === "lane" ? "lane" : "public";
 }
+
 function isSwimLike(slot) {
   return ["lane", "public"].includes(slot.category);
 }
@@ -1339,6 +1307,30 @@ function getTodaySchedules(pools, date = new Date(), swimOnly = true) {
       todaySlots: slots
     };
   });
+}
+
+function getRecommendation(statuses, now = new Date()) {
+  const openNow = statuses
+    .filter(s => s.current)
+    .sort((a, b) => b.priority - a.priority);
+
+  if (openNow.length) {
+    return { type: "open", status: openNow[0] };
+  }
+
+  const nextUp = statuses
+    .filter(s => s.next)
+    .sort((a, b) => {
+      const timeDiff = timeToMinutes(a.next.start) - timeToMinutes(b.next.start);
+      if (timeDiff !== 0) return timeDiff;
+      return b.priority - a.priority;
+    });
+
+  if (nextUp.length) {
+    return { type: "next", status: nextUp[0] };
+  }
+
+  return null;
 }
 
 function renderStatusWidgets() {
@@ -1512,7 +1504,26 @@ function renderTodayByPool() {
   `;
 }
 
-  // Fish toggle (works on mobile)
+document.addEventListener("DOMContentLoaded", () => {
+  renderStatusWidgets();
+  renderTodayByPool();
+});
+</script>
+
+<script>
+(function(){
+  const egg = document.getElementById("setEgg");
+  const fish = document.getElementById("fishToggle");
+  const toast = document.getElementById("setToast");
+
+  function showToast(msg){
+    if(!toast) return;
+    toast.textContent = msg;
+    toast.classList.add("on");
+    setTimeout(() => toast.classList.remove("on"), 1200);
+  }
+
+  // Fish toggle
   if (fish && egg){
     fish.addEventListener("click", () => {
       const isOn = egg.classList.toggle("on");
@@ -1521,7 +1532,6 @@ function renderTodayByPool() {
     });
   }
 
-  // --- Set generation helpers ---
   function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
   function shuffle(arr){
     for(let i=arr.length-1;i>0;i--){
@@ -1666,7 +1676,6 @@ function renderTodayByPool() {
     }
   }
 
-  // --- Wire up UI ---
   const distEl = document.getElementById("setDist");
   const focusEl = document.getElementById("setFocus");
   const intensityEl = document.getElementById("setIntensity");
@@ -1731,6 +1740,97 @@ function renderTodayByPool() {
   });
 })();
 </script>
+<script>
+(function(){
+  const egg = document.getElementById("setEgg");
+  const fish = document.getElementById("fishToggle");
+  const toast = document.getElementById("setToast");
 
+  function showToast(msg){
+    if(!toast) return;
+    toast.textContent = msg;
+    toast.classList.add("on");
+    setTimeout(() => toast.classList.remove("on"), 1200);
+  }
+
+  // Fish toggle
+  if (fish && egg){
+    fish.addEventListener("click", () => {
+      const isOn = egg.classList.toggle("on");
+      showToast(isOn ? "Set Generator unlocked 🏊" : "Set Generator hidden");
+      if (isOn) egg.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+  }
+
+  function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  const genBtn = document.getElementById("genSetBtn");
+  const regenBtn = document.getElementById("regenSetBtn");
+  const copyBtn = document.getElementById("copySetBtn");
+
+  const distEl = document.getElementById("setDist");
+  const focusEl = document.getElementById("setFocus");
+  const intensityEl = document.getElementById("setIntensity");
+
+  const out = document.getElementById("setOutput");
+  const titleEl = document.getElementById("setTitle");
+  const linesEl = document.getElementById("setLines");
+  const notesEl = document.getElementById("setNotes");
+
+  let lastSetText = "";
+
+  function buildSet(distance, focus, intensity){
+    return {
+      title: `${distance}m • ${focus} • ${intensity}`,
+      lines: [
+        "200 easy",
+        "4 x 50 drill",
+        "4 x 100 steady",
+        "100 easy"
+      ],
+      notes: "Simple fallback set"
+    };
+  }
+
+  function renderSet(){
+    const distance = parseInt(distEl.value, 10);
+    const focus = focusEl.value;
+    const intensity = intensityEl.value;
+
+    const s = buildSet(distance, focus, intensity);
+
+    titleEl.textContent = s.title;
+    linesEl.innerHTML = "";
+
+    s.lines.forEach(line => {
+      const li = document.createElement("li");
+      li.textContent = line;
+      linesEl.appendChild(li);
+    });
+
+    notesEl.textContent = s.notes;
+    out.style.display = "block";
+
+    lastSetText = [s.title, "", ...s.lines, "", s.notes].join("\n");
+  }
+
+  function prevent(e){ e.preventDefault(); }
+
+  if (genBtn) genBtn.addEventListener("click", (e) => { prevent(e); renderSet(); });
+  if (regenBtn) regenBtn.addEventListener("click", (e) => { prevent(e); renderSet(); });
+
+  if (copyBtn) copyBtn.addEventListener("click", async (e) => {
+    prevent(e);
+    try{
+      await navigator.clipboard.writeText(lastSetText || "");
+      showToast("Set copied ✅");
+    } catch(err){
+      showToast("Copy failed");
+    }
+  });
+})();
+</script>
 </body>
 </html>
+
+
