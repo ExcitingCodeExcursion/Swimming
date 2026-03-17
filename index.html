@@ -1087,7 +1087,8 @@ function renderStatusWidgets() {
 
   const now = new Date();
   const statuses = getAllPoolStatuses(poolSchedules, now, true);
-
+console.log("DAY KEY:", getDayKey(now));
+console.log("STATUSES:", statuses);
   const dayName = now.toLocaleDateString(undefined, { weekday: "long" });
   todayMeta.textContent = `${dayName} • Ranked by swim priority`;
 
@@ -1095,13 +1096,13 @@ function renderStatusWidgets() {
     .filter(s => s.current)
     .sort((a, b) => b.priority - a.priority);
 
-  const nextUp = statuses
-    .filter(s => !s.current && s.next)
-    .sort((a, b) => {
-      const timeDiff = timeToMinutes(a.next.start) - timeToMinutes(b.next.start);
-      if (timeDiff !== 0) return timeDiff;
-      return b.priority - a.priority;
-    });
+const nextUp = statuses
+  .filter(s => s.next)
+  .sort((a, b) => {
+    const timeDiff = timeToMinutes(a.next.start) - timeToMinutes(b.next.start);
+    if (timeDiff !== 0) return timeDiff;
+    return b.priority - a.priority;
+  });
 
   if (openNow.length) {
     openNowBlock.innerHTML = `
