@@ -1482,6 +1482,10 @@ function renderPoolBlock(targetId, heading, date, openByDefault = false) {
   const target = document.getElementById(targetId);
   if (!target) return;
 
+  function renderTodayAndTomorrow() {
+  renderPoolBlock("todayPoolsBlock", "Today by pool", new Date(), true);
+  renderPoolBlock("tomorrowPoolsBlock", "Tomorrow by pool", getTomorrow(), false);
+}
   const pools = getTodaySchedules(poolSchedules, date, true)
     .sort((a, b) => b.priority - a.priority);
 
@@ -1768,96 +1772,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 })();
 </script>
-<script>
-(function(){
-  const egg = document.getElementById("setEgg");
-  const fish = document.getElementById("fishToggle");
-  const toast = document.getElementById("setToast");
 
-  function showToast(msg){
-    if(!toast) return;
-    toast.textContent = msg;
-    toast.classList.add("on");
-    setTimeout(() => toast.classList.remove("on"), 1200);
-  }
-
-  // Fish toggle
-  if (fish && egg){
-    fish.addEventListener("click", () => {
-      const isOn = egg.classList.toggle("on");
-      showToast(isOn ? "Set Generator unlocked 🏊" : "Set Generator hidden");
-      if (isOn) egg.scrollIntoView({behavior:"smooth", block:"start"});
-    });
-  }
-
-  function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-
-  const genBtn = document.getElementById("genSetBtn");
-  const regenBtn = document.getElementById("regenSetBtn");
-  const copyBtn = document.getElementById("copySetBtn");
-
-  const distEl = document.getElementById("setDist");
-  const focusEl = document.getElementById("setFocus");
-  const intensityEl = document.getElementById("setIntensity");
-
-  const out = document.getElementById("setOutput");
-  const titleEl = document.getElementById("setTitle");
-  const linesEl = document.getElementById("setLines");
-  const notesEl = document.getElementById("setNotes");
-
-  let lastSetText = "";
-
-  function buildSet(distance, focus, intensity){
-    return {
-      title: `${distance}m • ${focus} • ${intensity}`,
-      lines: [
-        "200 easy",
-        "4 x 50 drill",
-        "4 x 100 steady",
-        "100 easy"
-      ],
-      notes: "Simple fallback set"
-    };
-  }
-
-  function renderSet(){
-    const distance = parseInt(distEl.value, 10);
-    const focus = focusEl.value;
-    const intensity = intensityEl.value;
-
-    const s = buildSet(distance, focus, intensity);
-
-    titleEl.textContent = s.title;
-    linesEl.innerHTML = "";
-
-    s.lines.forEach(line => {
-      const li = document.createElement("li");
-      li.textContent = line;
-      linesEl.appendChild(li);
-    });
-
-    notesEl.textContent = s.notes;
-    out.style.display = "block";
-
-    lastSetText = [s.title, "", ...s.lines, "", s.notes].join("\n");
-  }
-
-  function prevent(e){ e.preventDefault(); }
-
-  if (genBtn) genBtn.addEventListener("click", (e) => { prevent(e); renderSet(); });
-  if (regenBtn) regenBtn.addEventListener("click", (e) => { prevent(e); renderSet(); });
-
-  if (copyBtn) copyBtn.addEventListener("click", async (e) => {
-    prevent(e);
-    try{
-      await navigator.clipboard.writeText(lastSetText || "");
-      showToast("Set copied ✅");
-    } catch(err){
-      showToast("Copy failed");
-    }
-  });
-})();
-</script>
 </body>
 </html>
 
