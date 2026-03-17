@@ -200,9 +200,23 @@
     }
 
     /* Mobile tweaks */
-    @media (max-width: 640px){
-      .embed.ratio{ min-height: 280px; aspect-ratio: 4 / 5; }
-      .pill{ display:none; }
+@media (max-width: 640px){
+  .embed.ratio{ min-height: 280px; aspect-ratio: 4 / 5; }
+  .pill{ display:none; }
+}
+
+/* Fix Swim Finder overflow on mobile */
+@media (max-width: 640px){
+  .slot{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .time{
+    white-space: normal;
+  }
+}
     }
 
     /* Shared day-card styles (used by MUN + Summit) */
