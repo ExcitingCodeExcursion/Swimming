@@ -384,7 +384,27 @@
 
 <main class="container">
   <div class="grid">
+<!-- Smart Swim Finder -->
+<section class="card">
+  <div class="card-head">
+    <div>
+      <h2>Swim Finder</h2>
+      <div class="card-meta" id="todayMeta">Today’s best options</div>
+    </div>
+    <div class="pill">Live</div>
+  </div>
+  <div class="card-body">
+    <div id="openNowBlock"></div>
 
+    <div style="height:12px;"></div>
+
+    <div id="nextSwimBlock"></div>
+
+    <div style="height:12px;"></div>
+
+    <div id="todayPoolsBlock"></div>
+  </div>
+</section>
     <!-- HGR Mews -->
     <section class="card">
       <div class="card-head">
@@ -780,7 +800,399 @@
 <footer>
   Built for quick checking. If a schedule looks blank, open the source link directly.
 </footer>
+<script>
+const aquarenaSchedule = {
+  id: "aquarena",
+  name: "Aquarena",
+  priority: 4,
+  sourceType: "static",
+  days: {
+    sunday: [
+      { activity: "Lane Swim", area: "Deep", start: "12:00", end: "14:00", category: "lane" },
+      { activity: "Public Swim", area: "", start: "14:15", end: "15:15", category: "public" }
+    ],
+    monday: [
+      { activity: "Lane Swim", area: "Deep", start: "10:00", end: "12:00", category: "lane" },
+      { activity: "Lane Swim", area: "Full Pool", start: "12:00", end: "13:15", category: "lane" },
+      { activity: "Lane Swim", area: "Shallow", start: "13:15", end: "14:00", category: "lane" }
+    ],
+    tuesday: [
+      { activity: "Lane Swim", area: "Shallow", start: "10:00", end: "12:00", category: "lane" },
+      { activity: "Lane Swim", area: "Full Pool", start: "12:00", end: "13:15", category: "lane" },
+      { activity: "Lane Swim", area: "Shallow", start: "13:15", end: "14:00", category: "lane" }
+    ],
+    wednesday: [
+      { activity: "Lane Swim", area: "Deep", start: "10:00", end: "12:00", category: "lane" },
+      { activity: "Lane Swim", area: "Full Pool", start: "12:00", end: "13:15", category: "lane" },
+      { activity: "Lane Swim", area: "Shallow", start: "13:15", end: "14:00", category: "lane" }
+    ],
+    thursday: [
+      { activity: "Lane Swim", area: "Shallow", start: "10:00", end: "12:00", category: "lane" },
+      { activity: "Lane Swim", area: "Full Pool", start: "12:00", end: "13:15", category: "lane" },
+      { activity: "Lane Swim", area: "Shallow", start: "13:15", end: "14:00", category: "lane" }
+    ],
+    friday: [
+      { activity: "Lane Swim", area: "Deep", start: "10:00", end: "12:00", category: "lane" },
+      { activity: "Lane Swim", area: "Full Pool", start: "12:00", end: "13:15", category: "lane" },
+      { activity: "Lane Swim", area: "Shallow", start: "13:15", end: "14:00", category: "lane" },
+      { activity: "Public Swim", area: "", start: "19:15", end: "20:15", category: "public" }
+    ],
+    saturday: [
+      { activity: "Lane Swim", area: "Deep", start: "10:00", end: "12:00", category: "lane" },
+      { activity: "Public Swim", area: "", start: "14:15", end: "15:15", category: "public" }
+    ]
+  }
+};
 
+const summitSchedule = {
+  id: "summit",
+  name: "Summit Centre",
+  priority: 2,
+  sourceType: "static",
+  days: {
+    sunday: [
+      { activity: "Lane Swim", area: "", start: "07:00", end: "08:20", category: "lane" },
+      { activity: "Family Swim", area: "", start: "10:45", end: "11:30", category: "public" },
+      { activity: "Public Swim", area: "", start: "15:30", end: "16:15", category: "public" },
+      { activity: "Lane Swim", area: "", start: "21:00", end: "22:00", category: "lane" }
+    ],
+    monday: [
+      { activity: "Lane Swim", area: "4 lanes", start: "06:00", end: "07:15", category: "lane" },
+      { activity: "Lane Swim", area: "", start: "07:15", end: "09:15", category: "lane" },
+      { activity: "Lane Swim", area: "", start: "11:30", end: "14:30", category: "lane" },
+      { activity: "Lane Swim", area: "", start: "18:00", end: "18:50", category: "lane" }
+    ],
+    tuesday: [
+      { activity: "Lane Swim", area: "", start: "07:15", end: "09:15", category: "lane" },
+      { activity: "Lane Swim", area: "", start: "11:30", end: "14:30", category: "lane" }
+    ],
+    wednesday: [
+      { activity: "Lane Swim", area: "4 lanes", start: "06:00", end: "07:15", category: "lane" },
+      { activity: "Lane Swim", area: "", start: "07:15", end: "09:15", category: "lane" },
+      { activity: "Lane Swim", area: "", start: "11:30", end: "14:30", category: "lane" },
+      { activity: "Lane Swim", area: "", start: "21:00", end: "22:00", category: "lane" }
+    ],
+    thursday: [
+      { activity: "Lane Swim", area: "", start: "07:15", end: "09:15", category: "lane" },
+      { activity: "Lane Swim", area: "", start: "11:30", end: "14:30", category: "lane" }
+    ],
+    friday: [
+      { activity: "Lane Swim", area: "4 lanes", start: "06:00", end: "07:15", category: "lane" },
+      { activity: "Lane Swim", area: "", start: "07:15", end: "09:15", category: "lane" },
+      { activity: "Lane Swim", area: "", start: "11:30", end: "13:30", category: "lane" },
+      { activity: "Family Swim", area: "", start: "19:00", end: "19:50", category: "public" },
+      { activity: "Public Swim", area: "", start: "20:00", end: "20:50", category: "public" }
+    ],
+    saturday: [
+      { activity: "Lane Swim", area: "5 lanes", start: "09:30", end: "10:00", category: "lane" },
+      { activity: "Lane Swim", area: "", start: "10:00", end: "10:30", category: "lane" },
+      { activity: "Family Swim", area: "", start: "10:45", end: "11:30", category: "public" },
+      { activity: "Public Swim", area: "", start: "15:30", end: "16:15", category: "public" },
+      { activity: "Sensory Swim", area: "", start: "16:45", end: "17:30", category: "public" }
+    ]
+  }
+};
+
+const mewsSchedule = {
+  id: "mews",
+  name: "Mews Centre",
+  priority: 3,
+  sourceType: "static",
+  days: {
+    sunday: [
+      { activity: "Lane & Leisure", area: "3 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "10:00", end: "10:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "15:00", end: "15:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "19:30", end: "20:20", category: "lane" }
+    ],
+    monday: [
+      { activity: "Lane & Leisure", area: "3 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "10:00", end: "13:50", category: "lane" },
+      { activity: "Lane Swim", area: "6 lanes", start: "19:00", end: "19:50", category: "lane" }
+    ],
+    tuesday: [
+      { activity: "Lane & Leisure", area: "3 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "10:00", end: "13:50", category: "lane" }
+    ],
+    wednesday: [
+      { activity: "Lane & Leisure", area: "3 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "10:00", end: "13:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "19:00", end: "19:50", category: "lane" }
+    ],
+    thursday: [
+      { activity: "Lane & Leisure", area: "3 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "10:00", end: "13:20", category: "lane" }
+    ],
+    friday: [
+      { activity: "Lane & Leisure", area: "3 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "10:00", end: "13:50", category: "lane" }
+    ],
+    saturday: [
+      { activity: "Lane & Leisure", area: "3 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "15:00", end: "15:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "18:30", end: "19:50", category: "lane" }
+    ]
+  }
+};
+
+const paulReynoldsSchedule = {
+  id: "paul-reynolds",
+  name: "Paul Reynolds",
+  priority: 1,
+  sourceType: "static",
+  days: {
+    sunday: [
+      { activity: "Lane & Leisure", area: "6 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Everyone Welcome", area: "", start: "14:30", end: "15:30", category: "public" },
+      { activity: "Everyone Welcome", area: "", start: "17:30", end: "18:20", category: "public" },
+      { activity: "Lane & Leisure", area: "6 lanes", start: "19:30", end: "20:20", category: "lane" }
+    ],
+    monday: [
+      { activity: "Lane & Leisure", area: "6 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "11:00", end: "13:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "6 lanes", start: "19:00", end: "19:50", category: "lane" }
+    ],
+    tuesday: [
+      { activity: "Lane & Leisure", area: "6 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "6 lanes", start: "10:00", end: "13:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "6 lanes", start: "19:00", end: "19:50", category: "lane" }
+    ],
+    wednesday: [
+      { activity: "Lane & Leisure", area: "6 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "11:00", end: "13:50", category: "lane" },
+      { activity: "Everyone Welcome", area: "", start: "19:00", end: "19:50", category: "public" }
+    ],
+    thursday: [
+      { activity: "Lane & Leisure", area: "6 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "6 lanes", start: "10:00", end: "13:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "6 lanes", start: "19:00", end: "19:50", category: "lane" }
+    ],
+    friday: [
+      { activity: "Lane & Leisure", area: "6 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "11:00", end: "13:50", category: "lane" },
+      { activity: "Everyone Welcome", area: "", start: "19:00", end: "19:50", category: "public" }
+    ],
+    saturday: [
+      { activity: "Lane & Leisure", area: "6 lanes", start: "07:00", end: "08:50", category: "lane" },
+      { activity: "Everyone Welcome", area: "", start: "14:30", end: "15:30", category: "public" },
+      { activity: "Everyone Welcome", area: "", start: "17:30", end: "18:45", category: "public" },
+      { activity: "Lane & Leisure", area: "3 lanes", start: "19:00", end: "19:50", category: "lane" }
+    ]
+  }
+};
+
+const poolSchedules = [
+  aquarenaSchedule,
+  mewsSchedule,
+  summitSchedule,
+  paulReynoldsSchedule
+];
+
+function getDayKey(date = new Date()) {
+  return ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][date.getDay()];
+}
+
+function timeToMinutes(timeStr) {
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function nowMinutes(date = new Date()) {
+  return date.getHours() * 60 + date.getMinutes();
+}
+
+function formatTime(timeStr) {
+  const [h, m] = timeStr.split(":").map(Number);
+  const suffix = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 || 12;
+  return `${hour12}:${String(m).padStart(2, "0")} ${suffix}`;
+}
+
+function formatSlot(slot) {
+  const area = slot.area ? `, ${slot.area}` : "";
+  return `${slot.activity}${area} • ${formatTime(slot.start)}–${formatTime(slot.end)}`;
+}
+
+function isSwimLike(slot) {
+  return ["lane", "public"].includes(slot.category);
+}
+
+function getPoolStatus(pool, date = new Date(), swimOnly = true) {
+  const dayKey = getDayKey(date);
+  const now = nowMinutes(date);
+
+  let slots = (pool.days[dayKey] || []).slice().sort((a, b) => {
+    return timeToMinutes(a.start) - timeToMinutes(b.start);
+  });
+
+  if (swimOnly) {
+    slots = slots.filter(isSwimLike);
+  }
+
+  let current = null;
+  let next = null;
+
+  for (const slot of slots) {
+    const start = timeToMinutes(slot.start);
+    const end = timeToMinutes(slot.end);
+
+    if (now >= start && now < end) {
+      current = slot;
+      break;
+    }
+
+    if (now < start && !next) {
+      next = slot;
+    }
+  }
+
+  return {
+    poolName: pool.name,
+    priority: pool.priority,
+    current,
+    next,
+    todaySlots: slots
+  };
+}
+
+function getAllPoolStatuses(pools, date = new Date(), swimOnly = true) {
+  return pools.map(pool => getPoolStatus(pool, date, swimOnly));
+}
+
+function getTodaySchedules(pools, date = new Date(), swimOnly = true) {
+  const dayKey = getDayKey(date);
+
+  return pools.map(pool => {
+    let slots = (pool.days[dayKey] || []).slice().sort((a, b) => {
+      return timeToMinutes(a.start) - timeToMinutes(b.start);
+    });
+
+    if (swimOnly) {
+      slots = slots.filter(isSwimLike);
+    }
+
+    return {
+      ...pool,
+      todaySlots: slots
+    };
+  });
+}
+
+function renderStatusWidgets() {
+  const todayMeta = document.getElementById("todayMeta");
+  const openNowBlock = document.getElementById("openNowBlock");
+  const nextSwimBlock = document.getElementById("nextSwimBlock");
+
+  if (!todayMeta || !openNowBlock || !nextSwimBlock) return;
+
+  const now = new Date();
+  const statuses = getAllPoolStatuses(poolSchedules, now, true);
+
+  const dayName = now.toLocaleDateString(undefined, { weekday: "long" });
+  todayMeta.textContent = `${dayName} • Ranked by swim priority`;
+
+  const openNow = statuses
+    .filter(s => s.current)
+    .sort((a, b) => b.priority - a.priority);
+
+  const nextUp = statuses
+    .filter(s => !s.current && s.next)
+    .sort((a, b) => {
+      const timeDiff = timeToMinutes(a.next.start) - timeToMinutes(b.next.start);
+      if (timeDiff !== 0) return timeDiff;
+      return b.priority - a.priority;
+    });
+
+  if (openNow.length) {
+    openNowBlock.innerHTML = `
+      <div class="day-card">
+        <div class="day-name">Open now</div>
+        ${openNow.map(s => `
+          <div class="slot">
+            <div class="activity">${s.poolName}</div>
+            <div class="time">${formatSlot(s.current)}</div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  } else {
+    openNowBlock.innerHTML = `
+      <div class="day-card">
+        <div class="day-name">Open now</div>
+        <div class="slot">
+          <div class="activity">No swim sessions are active right now</div>
+          <div class="time"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (nextUp.length) {
+    nextSwimBlock.innerHTML = `
+      <div class="day-card">
+        <div class="day-name">Next swims</div>
+        ${nextUp.slice(0, 6).map(s => `
+          <div class="slot">
+            <div class="activity">${s.poolName}</div>
+            <div class="time">${formatSlot(s.next)}</div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  } else {
+    nextSwimBlock.innerHTML = `
+      <div class="day-card">
+        <div class="day-name">Next swims</div>
+        <div class="slot">
+          <div class="activity">No more swims scheduled today</div>
+          <div class="time"></div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function renderTodayByPool() {
+  const target = document.getElementById("todayPoolsBlock");
+  if (!target) return;
+
+  const todayPools = getTodaySchedules(poolSchedules, new Date(), true)
+    .sort((a, b) => b.priority - a.priority);
+
+  target.innerHTML = `
+    <div class="day-card">
+      <div class="day-name">Today by pool</div>
+      ${todayPools.map(pool => {
+        if (!pool.todaySlots.length) {
+          return `
+            <div class="slot">
+              <div class="activity">${pool.name}</div>
+              <div class="time">No swims today</div>
+            </div>
+          `;
+        }
+
+        return `
+          <div style="padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+            <div style="font-weight:800; margin-bottom:8px;">${pool.name}</div>
+            ${pool.todaySlots.map(slot => `
+              <div class="slot" style="padding:6px 0;">
+                <div class="activity">${slot.activity}${slot.area ? `, ${slot.area}` : ""}</div>
+                <div class="time">${formatTime(slot.start)} – ${formatTime(slot.end)}</div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderStatusWidgets();
+  renderTodayByPool();
+});
+</script>
 <script>
 (function(){
   const egg = document.getElementById("setEgg");
