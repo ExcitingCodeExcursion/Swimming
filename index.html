@@ -242,7 +242,6 @@
   .aquarena-desktop { display: none; }
   .aquarena-mobile { display: grid; gap: 12px; }
 }
-    }
 
     /* --- Summit schedule: table on desktop, day-cards on mobile --- */
     .summit-desktop { display: block; }
@@ -1038,7 +1037,7 @@ function getPoolStatus(pool, date = new Date(), swimOnly = true) {
 
     if (now >= start && now < end) {
       current = slot;
-      break;
+      continue;
     }
 
     if (now < start && !next) {
