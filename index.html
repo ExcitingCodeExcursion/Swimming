@@ -1483,29 +1483,7 @@ function renderPoolBlock(targetId, heading, date, openByDefault = false) {
   if (!target) return;
 
   const pools = getTodaySchedules(poolSchedules, date, true)
-    .sort((a, b) => b.priority - a.priority);
-
-  target.innerHTML = `
-    <details class="collapsible"${openByDefault ? " open" : ""}>
-      <summary class="collapsible-summary">
-        <div>
-          <div class="collapsible-label">${heading}</div>
-          <div class="collapsible-hint">${date.toLocaleDateString(undefined, { weekday: "long" })}</div>
-        </div>
-        <div class="chevron">›</div>
-      </summary>
-      <div class="finder-card" style="margin-top:10px;">
-        ${pools.map(pool => {
-          if (!pool.todaySlots.length) {
-            return `
-              <div class="pool-group">
-                <div class="pool-group-title">
-                  <span>${pool.name}</span>
-                  <span class="helper-text">No swims</span>
-                </div>
-              </div>
-            `;
-          }
+   
 
           return `
             <div class="pool-group">
